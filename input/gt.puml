@@ -1,0 +1,36 @@
+@startuml
+participant MME
+participant SGW
+participant HSS
+box "PGW-C/SMF Set"
+    participant "PGW A" as PGWA
+    participant "PGW B" as PGWB
+end box
+
+note over PGWA, PGWB
+1. Trigger to change the PGW assigned
+to a PDN connection
+end note
+
+PGWA<--?: e.g. scale-in
+PGWB <--?: e.g. PCF reselects a\nnew PGW-C/SMF
+
+PGWA --> SGW: 2a. Update Bearer Request\n(PGW Change Info)
+SGW --> MME: 2a. Update Bearer Request\n(PGW Change Info)
+MME --> SGW: 3a. Update Bearer Response
+SGW --> PGWA: 3a. Update Bearer Response
+
+MME <-- SGW: 2b. Update Bearer Request\n(PGW Change Info)
+SGW <-- PGWB: 2b. Update Bearer Request\n(PGW Change Info)
+MME --> SGW: 3b. Update Bearer Response
+SGW --> PGWB: 3b. Update Bearer Response
+
+MME -> SGW: 4. Create Session Request\n(PGW Change Indication)
+SGW -> PGWB: 4. Create Session Request\n(PGW Change Indication)
+PGWB -> SGW: 5. Create Session Response
+SGW -> MME: 5. Create Session Response
+
+MME -> HSS: 6. Notify (PGW-B FQDN)
+MME <- HSS: 7. Notify response
+
+@enduml
